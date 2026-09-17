@@ -1,28 +1,67 @@
-// src/main/java/com/example/demo/DemoApplication.java
-package com.example.demo;
+package com.example.amazon.model;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@SpringBootApplication
-@RestController
-public class DemoApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
+@Entity
+@Table(name = "orders")
+public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
+    
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalAmount;
+    
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+    
+    private String shippingAddress;
+    private LocalDateTime orderDate;
+    private LocalDateTime deliveryDate;
+    
+    public enum OrderStatus {
+        PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
     }
-
-    @GetMapping("/")
-    public String home() {
-        return "<h1>Welcome to the Java Web App!</h1>" +
-               "<p>This is a simple Spring Boot web application.</p>" +
-               "<p>Try <a href='/api/hello'>/api/hello</a></p>";
+    
+    // Constructors
+    public Order() {
+        this.orderDate = LocalDateTime.now();
+        this.status = OrderStatus.PENDING;
     }
-
-    @GetMapping("/api/hello")
-    public String hello() {
-        return "Hello from the Java backend!";
-    }
+    
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+    
+    public List<OrderItem> getItems() { return items; }
+    public void setItems(List<OrderItem> items) { this.items = items; }
+    
+    public BigDecimal getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
+    
+    public OrderStatus getStatus() { return status; }
+    public void setStatus(OrderStatus status) { this.status = status; }
+    
+    public String getShippingAddress() { return shippingAddress; }
+    public void setShippingAddress(String shippingAddress) { this.shippingAddress = shippingAddress; }
+    
+    public LocalDateTime getOrderDate() { return orderDate; }
+    public void setOrderDate(LocalDateTime orderDate) { this.orderDate = orderDate; }
+    
+    public LocalDateTime getDeliveryDate() { return deliveryDate; }
+    public void setDeliveryDate(LocalDateTime deliveryDate) { this.deliveryDate = deliveryDate; }
 }
